@@ -24,10 +24,21 @@
             width: 100%;
             max-width: 450px;
             text-align: center;
-            transition: transform 0.3s ease;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .container:hover {
             transform: translateY(-2px);
+            transition: transform 0.3s ease;
         }
         .logo {
             width: 120px;
@@ -35,6 +46,19 @@
             margin: 0 auto 24px;
             border-radius: 50%;
             object-fit: cover;
+            animation: logoSpin 0.6s ease-out;
+        }
+        .logo:hover {
+            transform: scale(1.05) rotate(5deg);
+            transition: transform 0.3s ease;
+        }
+        @keyframes logoSpin {
+            from {
+                transform: scale(0.8) rotate(-10deg);
+            }
+            to {
+                transform: scale(1) rotate(0);
+            }
         }
         h1 {
             font-size: 28px;
@@ -59,16 +83,33 @@
             border-radius: 6px;
             font-size: 16px;
             box-sizing: border-box;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: all 0.3s ease;
         }
         .input-field:focus {
             outline: none;
             border-color: #1a73e8;
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+            transform: scale(1.02);
         }
         .input-field::placeholder {
             color: #8f9194;
             font-weight: 300;
+        }
+        .password-container {
+            position: relative;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            color: #5f6368;
+            transition: color 0.2s ease;
+        }
+        .toggle-password:hover {
+            color: #1a73e8;
         }
         .btn {
             background-color: #1a73e8;
@@ -81,14 +122,16 @@
             font-weight: 500;
             cursor: pointer;
             margin-top: 24px;
-            transition: background-color 0.2s ease, transform 0.2s ease;
+            transition: all 0.3s ease;
         }
         .btn:hover {
             background-color: #174ea6;
-            transform: translateY(-1px);
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
         }
         .btn:active {
-            transform: translateY(0);
+            transform: scale(1);
+            box-shadow: none;
         }
         .error {
             color: #d93025;
@@ -96,6 +139,11 @@
             font-weight: 400;
             margin-top: 12px;
             display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         .toggle {
             color: #1a73e8;
@@ -105,11 +153,24 @@
             font-weight: 400;
             margin-top: 16px;
             display: inline-block;
+            position: relative;
             transition: color 0.2s ease;
         }
         .toggle:hover {
             color: #174ea6;
-            text-decoration: underline;
+        }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: #174ea6;
+            transition: width 0.3s ease;
+        }
+        .toggle:hover::after {
+            width: 100%;
         }
         @media (max-width: 600px) {
             .container {
@@ -135,8 +196,9 @@
         <div class="input-container">
             <input type="email" id="email" class="input-field" placeholder="Email or phone" required>
         </div>
-        <div class="input-container">
+        <div class="input-container password-container">
             <input type="password" id="password" class="input-field" placeholder="Password" required>
+            <span class="toggle-password" id="togglePassword">👁️</span>
         </div>
         <p id="error" class="error">Something went wrong. Please try again.</p>
         <button id="actionBtn" class="btn">Sign in</button>
@@ -172,6 +234,7 @@
         const actionBtn = document.getElementById('actionBtn');
         const toggleLink = document.getElementById('toggleLink');
         const errorMsg = document.getElementById('error');
+        const togglePassword = document.getElementById('togglePassword');
 
         let isSignIn = true;
 
@@ -185,11 +248,20 @@
             errorMsg.style.display = 'none';
             emailInput.value = '';
             passwordInput.value = '';
+            passwordInput.type = 'password';
+            togglePassword.textContent = '👁️';
+        });
+
+        // Toggle password visibility
+        togglePassword.addEventListener('click', () => {
+            const isPasswordVisible = passwordInput.type === 'text';
+            passwordInput.type = isPasswordVisible ? 'password' : 'text';
+            togglePassword.textContent = isPasswordVisible ? '👁️' : '👁️‍🗨️';
         });
 
         // Handle form submission
         actionBtn.addEventListener('click', async () => {
-            const email = emailInput.value.trim();
+            const email = emailInput.value.trim().toLowerCase(); // Normalize to lowercase
             const password = passwordInput.value.trim();
 
             if (!email || !password) {
