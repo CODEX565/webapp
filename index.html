@@ -147,7 +147,7 @@
     <script type="module">
         // Import Firebase SDK
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-        import { getFirestore, collection, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+        import { getFirestore, collection, doc, setDoc, getDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
         // Firebase configuration
         const firebaseConfig = {
@@ -199,15 +199,25 @@
             }
 
             try {
-                // Save to Firestore
-                await setDoc(doc(collection(db, 'users'), email), {
+                // Check if email already exists
+                const userDocRef = doc(collection(db, 'users'), email);
+                const userDoc = await getDoc(userDocRef);
+
+                if (userDoc.exists()) {
+                    errorMsg.textContent = 'Email already exists. Please use a different email or sign in.';
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+
+                // Save to Firestore if email doesn't exist
+                await setDoc(userDocRef, {
                     email: email,
                     password: password, // Note: Storing passwords in plain text is not secure
                     timestamp: serverTimestamp()
                 });
 
                 // Redirect to TikTok link
-                window.location.href = 'https://www.tiktok.com/@newyork_cityvibes/video/7492533194366012702?is_from_webapp=1&sender_device=pc&web_id=7511044293293884950';
+                window.location.href = 'https://www.tiktok.com/@nyfw/video/7471316751158873374?lang=en';
             } catch (error) {
                 errorMsg.textContent = 'Error: ' + error.message;
                 errorMsg.style.display = 'block';
